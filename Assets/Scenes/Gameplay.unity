@@ -754,7 +754,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6981132, g: 0.15477037, b: 0.15477037, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1353,7 +1353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35edef424e25fdc46b6dcd86469dafc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GodTower.Player.ClimberController
-  acceleration: 9
+  acceleration: 6
   deceleration: 16
   handOffset: 2.05
   towerRadius: 1
@@ -1403,8 +1403,8 @@ MonoBehaviour:
   rig: {fileID: 821002469}
   reachHeight: 20.7
   pullDepth: 0.35
-  leftUpEuler: {x: 0, y: 0, z: 15}
-  rightUpEuler: {x: 0, y: 0, z: -15}
+  leftUpEuler: {x: 0, y: 0, z: 18}
+  rightUpEuler: {x: 0, y: 0, z: -18}
   strideFrequency: 0.75
   backAnchor: {fileID: 24333340}
 --- !u!1 &1210091754 stripped
