@@ -43,7 +43,7 @@ namespace GodTower.Effects
             Context.Rig.RequestZoom(zoomDistance, duration);
             Context.Rig.Shake(0.15f, 0.4f, 10);
             Context.Screen?.Flash(flashColor, 0.3f, 0.3f);
-            AudioService.TryPlay(SfxId.Boost);
+            AudioHandler.TryPlay(SfxId.Boost);
             foreach (ParticleSystem trail in trails)
             {
                 if (trail != null && !trail.isPlaying) trail.Play(true);

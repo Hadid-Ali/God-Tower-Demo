@@ -29,14 +29,14 @@ namespace GodTower.Player
             _distanceSinceStep += Mathf.Max(0f, climber.VerticalSpeed) * Time.deltaTime;
             if (_distanceSinceStep < stepDistance) return;
             _distanceSinceStep = 0f;
-            AudioService.TryPlay(SfxId.ClimbStep, 0.6f, 0.2f);
+            AudioHandler.TryPlay(SfxId.ClimbStep, 0.6f, 0.2f);
         }
 
         static void OnStateChanged(ClimberState state)
         {
-            if (state == ClimberState.Fall) AudioService.TryPlay(SfxId.Whoosh, 1f, 0.05f);
+            if (state == ClimberState.Fall) AudioHandler.TryPlay(SfxId.Whoosh, 1f, 0.05f);
         }
 
-        static void OnRegrabbed() => AudioService.TryPlay(SfxId.Grab);
+        static void OnRegrabbed() => AudioHandler.TryPlay(SfxId.Grab);
     }
 }

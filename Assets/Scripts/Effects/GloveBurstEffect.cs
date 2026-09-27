@@ -58,7 +58,7 @@ namespace GodTower.Effects
 
             Context.Rig.RequestZoom(zoomDistance, launchWindow + flightTime + 0.8f);
             Context.Screen?.Flash(Color.white, 0.25f, 0.15f);
-            AudioService.TryPlay(SfxId.Whoosh, 0.8f, 0.1f);
+            AudioHandler.TryPlay(SfxId.Whoosh, 0.8f, 0.1f);
 
             // Golden-angle distribution sends gloves in from every direction without clumping.
             float angleOffset = Random.value * 360f;
@@ -115,7 +115,7 @@ namespace GodTower.Effects
             if (starBurst != null) starBurst.Emit(position, 5);
             if (flashBurst != null) flashBurst.Emit(position, 1);
             Context.Rig.Shake(shakeStrength, 0.22f);
-            AudioService.TryPlay(SfxId.Punch, 0.9f, 0.15f);
+            AudioHandler.TryPlay(SfxId.Punch, 0.9f, 0.15f);
 
             bool damaged = false;
             if (_damagedWave != wave)

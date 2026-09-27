@@ -38,7 +38,7 @@ namespace GodTower.Effects
             Context.Screen?.Flash(new Color(1f, 0.6f, 0.2f), 0.7f, 0.4f);
             Context.Rig.Shake(1.1f, 0.6f, 24);
             Context.Rig.RequestZoom(zoomDistance, zoomDuration);
-            AudioService.TryPlay(SfxId.Explosion);
+            AudioHandler.TryPlay(SfxId.Explosion);
 
             if (!Context.Climber.ApplyHit(HitData.KnockOffTower(Context.Config.explosionFallSpeed, Vector3.down)) && Context.View != null)
                 Context.View.Jolt(Vector3.down);

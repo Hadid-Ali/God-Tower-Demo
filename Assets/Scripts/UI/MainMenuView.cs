@@ -106,19 +106,19 @@ namespace GodTower.UI
 
         void StartLevel(int index)
         {
-            AudioService.TryPlay(SfxId.Click);
+            AudioHandler.TryPlay(SfxId.Click);
             GameSession.Instance?.PlayLevel(index);
         }
 
         void OnMasterVolume(float value)
         {
             SaveData.MasterVolume = value;
-            AudioService.Instance?.ApplyMasterVolume();
+            AudioHandler.ApplyMasterVolume();
         }
 
         void Open(CanvasGroup panel, bool playSound = true)
         {
-            if (playSound) AudioService.TryPlay(SfxId.Click);
+            if (playSound) AudioHandler.TryPlay(SfxId.Click);
             if (_current != null && _current != panel) UITween.HidePanel(_current);
             _current = panel;
             UITween.ShowPanel(panel);

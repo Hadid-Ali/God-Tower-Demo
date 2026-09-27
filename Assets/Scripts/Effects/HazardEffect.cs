@@ -39,7 +39,7 @@ namespace GodTower.Effects
         /// <summary>Shows a pulsing marker at an offset from the climber's chest for <see cref="warningTime"/>.</summary>
         protected IEnumerator Telegraph(Vector3 chestOffset)
         {
-            AudioService.TryPlay(SfxId.Warning, 0.8f);
+            AudioHandler.TryPlay(SfxId.Warning, 0.8f);
             GameObject marker = _warnings?.Get();
             if (marker != null) _live.Add(marker);
 

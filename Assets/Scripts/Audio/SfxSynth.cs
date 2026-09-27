@@ -20,7 +20,7 @@ namespace GodTower.Audio
 
     /// <summary>
     /// Generates small placeholder sound effects at startup so the prototype has complete audio
-    /// feedback without imported assets. Any clip can be overridden through <see cref="SfxLibrary"/>.
+    /// feedback without imported assets. Any clip can be overridden on the <see cref="AudioHandler"/>.
     /// </summary>
     public static class SfxSynth
     {

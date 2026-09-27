@@ -8,13 +8,14 @@ using UnityEngine.UI;
 namespace GodTower.UI
 {
     /// <summary>
-    /// Owns every in-level UI piece (HUD, flash, notifications, banner, pause and result screens) so the
+    /// Owns every in-level UI piece (HUD, level progress, flash, notifications, banner, pause and result screens) so the
     /// level flow only talks to one object. Every reference is optional: a missing piece is simply skipped,
     /// and <see cref="TryShowResult"/> reports when there is no result screen to show.
     /// </summary>
     public sealed class GameHudController : MonoBehaviour
     {
         [SerializeField] HudView hud;
+        [SerializeField] LevelProgressController levelProgress;
         [SerializeField] ScreenFlash screenFlash;
         [SerializeField] NotificationFeed notifications;
         [SerializeField] LevelBanner banner;
@@ -54,6 +55,7 @@ namespace GodTower.UI
         public void Bind(LevelConfig config, ClimberController climber, EffectManager effects)
         {
             if (hud != null) hud.Bind(config, climber);
+            if (levelProgress != null) levelProgress.Bind(climber);
 
             UnbindEffects();
             _effects = effects;

@@ -1,5 +1,4 @@
 using System;
-using GodTower.Audio;
 using GodTower.Level;
 using GodTower.Net;
 using UnityEngine;
@@ -9,7 +8,7 @@ namespace GodTower.Core
 {
     /// <summary>
     /// Persistent root that survives scene loads. Owns the webhook listener, the main-thread
-    /// dispatcher, audio, and which level is selected. Created automatically before the first scene.
+    /// dispatcher, and which level is selected. Audio lives in the scene's AudioHandler. Created automatically before the first scene.
     /// </summary>
     public sealed class GameSession : MonoBehaviour
     {
@@ -23,7 +22,6 @@ namespace GodTower.Core
         public LevelCatalog Catalog { get; private set; }
         public int SelectedLevelIndex { get; private set; }
         public MainThreadDispatcher Dispatcher { get; private set; }
-        public AudioService Audio { get; private set; }
         public BumpServer Server { get; private set; }
 
         public LevelConfig SelectedLevel => Catalog != null ? Catalog.Get(SelectedLevelIndex) : null;
@@ -63,7 +61,6 @@ namespace GodTower.Core
             if (Catalog == null) Debug.LogError($"[GameSession] Missing Resources/{CatalogResourcePath}. Run Tools/God Tower/Build Project.");
 
             Dispatcher = gameObject.AddComponent<MainThreadDispatcher>();
-            Audio = gameObject.AddComponent<AudioService>();
 
             Server = new BumpServer(BumpServer.DefaultPort);
             Server.BumpAccepted += OnBumpAcceptedOffThread;

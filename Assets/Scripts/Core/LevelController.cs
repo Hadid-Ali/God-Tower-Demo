@@ -145,7 +145,7 @@ namespace GodTower.Core
             cameraRig.RequestZoom(15f, 3f);
             climber.PlaySummitClimb(builder.SummitStandPoint);
             if (_session != null) SaveData.MarkCompleted(_session.SelectedLevelIndex);
-            AudioService.TryPlay(SfxId.Win);
+            AudioHandler.TryPlay(SfxId.Win);
             if (ui != null) ui.ShowBanner("SUMMIT!", null, 0.9f);
             StartCoroutine(ShowResultAfterDelay(won: true));
         }
@@ -153,7 +153,7 @@ namespace GodTower.Core
         void OnFellBelowBase()
         {
             SetFlow(LevelFlowState.Lost);
-            AudioService.TryPlay(SfxId.Lose);
+            AudioHandler.TryPlay(SfxId.Lose);
             StartCoroutine(ShowResultAfterDelay(won: false));
         }
 
@@ -178,7 +178,7 @@ namespace GodTower.Core
             Time.timeScale = 0f;
             input.ReleaseAll();
             if (ui != null) ui.ShowPause();
-            AudioService.TryPlay(SfxId.Click);
+            AudioHandler.TryPlay(SfxId.Click);
         }
 
         public void Resume()
@@ -187,7 +187,7 @@ namespace GodTower.Core
             if (ui != null) ui.HidePause();
             Time.timeScale = 1f;
             SetFlow(LevelFlowState.Playing);
-            AudioService.TryPlay(SfxId.Click);
+            AudioHandler.TryPlay(SfxId.Click);
         }
 
         void Retry() => Leave(() =>
@@ -211,7 +211,7 @@ namespace GodTower.Core
 
         void Leave(System.Action load)
         {
-            AudioService.TryPlay(SfxId.Click);
+            AudioHandler.TryPlay(SfxId.Click);
             Cleanup();
             load();
         }

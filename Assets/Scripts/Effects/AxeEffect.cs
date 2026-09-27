@@ -42,7 +42,7 @@ namespace GodTower.Effects
             Vector3 direction = new Vector3(-side, 0f, 0f);
             if (sparkBurst != null) sparkBurst.Emit(axeTransform.position, 10);
             Context.Rig.Shake(0.45f, 0.28f);
-            AudioService.TryPlay(SfxId.Impact, 1f, 0.1f);
+            AudioHandler.TryPlay(SfxId.Impact, 1f, 0.1f);
 
             float knockback = Context.Config.ToMeters(Context.Config.axeKnockback);
             if (Context.Climber.ApplyHit(HitData.Knockback(knockback, stagger, lethal: true, direction)))
