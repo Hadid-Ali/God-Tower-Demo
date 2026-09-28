@@ -2,16 +2,6 @@ using UnityEngine;
 
 namespace GodTower.Player
 {
-    public enum ClimberState
-    {
-        Idle = 0,
-        Climb = 1,
-        Hit = 2,
-        Fall = 3,
-        Win = 4,
-        Lose = 5,
-    }
-
     /// <summary>Describes how an attack affects the climber.</summary>
     public struct HitData
     {

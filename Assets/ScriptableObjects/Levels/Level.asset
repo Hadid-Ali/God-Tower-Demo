@@ -16,9 +16,14 @@ MonoBehaviour:
   displayName: Tower Base
   goalHeight: 1000
   unitsPerMeter: 20
+  startProgress: 0.15
   safeZoneHeight: 60
   climbSpeed: 1.8
   gloveKnockback: 150
   axeKnockback: 90
   explosionFallSpeed: 5
-  encounters: []
+  encounters:
+  - height: 0
+    effect: 0
+  - height: 0
+    effect: 2

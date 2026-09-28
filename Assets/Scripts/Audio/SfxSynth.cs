@@ -3,21 +3,6 @@ using UnityEngine;
 
 namespace GodTower.Audio
 {
-    public enum SfxId
-    {
-        Punch,
-        Impact,
-        Whoosh,
-        Boost,
-        Explosion,
-        Win,
-        Lose,
-        Click,
-        Grab,
-        Warning,
-        ClimbStep,
-    }
-
     /// <summary>
     /// Generates small placeholder sound effects at startup so the prototype has complete audio
     /// feedback without imported assets. Any clip can be overridden on the <see cref="AudioHandler"/>.

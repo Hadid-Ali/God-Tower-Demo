@@ -45,9 +45,7 @@ namespace GodTower.Effects
             AudioHandler.TryPlay(SfxId.Impact, 1f, 0.1f);
 
             float knockback = Context.Config.ToMeters(Context.Config.axeKnockback);
-            if (Context.Climber.ApplyHit(HitData.Knockback(knockback, stagger, lethal: true, direction)))
-                Context.Screen?.Flash(new Color(1f, 0.3f, 0.2f), 0.35f, 0.2f);
-            else if (Context.View != null)
+            if (!Context.Climber.ApplyHit(HitData.Knockback(knockback, stagger, lethal: true, direction)) && Context.View != null)
                 Context.View.Jolt(direction);
 
             // Bounce off and tumble away.

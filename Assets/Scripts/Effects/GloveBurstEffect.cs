@@ -57,7 +57,6 @@ namespace GodTower.Effects
             _wave++;
 
             Context.Rig.RequestZoom(zoomDistance, launchWindow + flightTime + 0.8f);
-            Context.Screen?.Flash(Color.white, 0.25f, 0.15f);
             AudioHandler.TryPlay(SfxId.Whoosh, 0.8f, 0.1f);
 
             // Golden-angle distribution sends gloves in from every direction without clumping.
@@ -123,11 +122,7 @@ namespace GodTower.Effects
                 float knockback = Context.Config.ToMeters(Context.Config.gloveKnockback);
                 // Non-lethal by contract: the webhook can never cause a loss.
                 damaged = Context.Climber.ApplyHit(HitData.Knockback(knockback, stagger, lethal: false, hitDirection));
-                if (damaged)
-                {
-                    _damagedWave = wave;
-                    Context.Screen?.Flash(new Color(1f, 0.9f, 0.4f), 0.45f, 0.2f);
-                }
+                if (damaged) _damagedWave = wave;
             }
 
             if (!damaged && Context.View != null) Context.View.Jolt(hitDirection);

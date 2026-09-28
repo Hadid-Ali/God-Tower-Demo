@@ -4,14 +4,6 @@ using System.Text;
 
 namespace GodTower.Net
 {
-    public enum BumpRoute
-    {
-        Bump,
-        Preflight,
-        NotFound,
-        MethodNotAllowed,
-    }
-
     public readonly struct HttpRequestHead
     {
         public readonly string Method;

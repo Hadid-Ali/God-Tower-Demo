@@ -35,7 +35,6 @@ namespace GodTower.Effects
             if (fireBurst != null) fireBurst.Emit(position, 45);
             if (smokeBurst != null) smokeBurst.Emit(position, 20);
             if (flashBurst != null) flashBurst.Emit(position, 2);
-            Context.Screen?.Flash(new Color(1f, 0.6f, 0.2f), 0.7f, 0.4f);
             Context.Rig.Shake(1.1f, 0.6f, 24);
             Context.Rig.RequestZoom(zoomDistance, zoomDuration);
             AudioHandler.TryPlay(SfxId.Explosion);

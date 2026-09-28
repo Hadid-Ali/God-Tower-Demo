@@ -12,15 +12,6 @@ using UnityEngine.SceneManagement;
 
 namespace GodTower.Core
 {
-    public enum LevelFlowState
-    {
-        Intro,
-        Playing,
-        Paused,
-        Won,
-        Lost,
-    }
-
     /// <summary>
     /// Owns the flow of one level: Intro → Playing ⇄ Paused → Won | Lost. Builds the level from the
     /// selected <see cref="LevelConfig"/>, wires the climber, camera, effects and UI together, routes
@@ -79,19 +70,16 @@ namespace GodTower.Core
             _encounters = new EncounterRunner(_config.encounters);
             _encounters.SkipUpTo(climber.HeightUnits);
             _bestHeight = climber.HeightUnits;
-            IScreenFeedback screen = ui != null ? ui.ScreenFeedback : null;
-            if (effects != null) effects.Initialize(new EffectContext(climber, climberView, cameraRig, screen, _config));
+            if (effects != null) effects.Initialize(new EffectContext(climber, climberView, cameraRig, _config));
 
             climber.SummitReached += OnSummitReached;
             climber.FellBelowBase += OnFellBelowBase;
             if (ui != null)
             {
                 ui.Bind(_config, climber, effects);
-                ui.PauseRequested += Pause;
-                ui.ResumeRequested += Resume;
-                ui.RetryRequested += Retry;
+                ui.PauseToggleRequested += TogglePause;
                 ui.NextLevelRequested += NextLevel;
-                ui.LevelSelectRequested += ExitToLevelSelect;
+                ui.QuitRequested += QuitGame;
             }
             if (_session != null) _session.BumpReceived += OnBump;
 
@@ -101,18 +89,13 @@ namespace GodTower.Core
         IEnumerator Intro()
         {
             SetFlow(LevelFlowState.Intro);
-            if (ui != null) ui.ShowBanner($"LEVEL {_config.number}", _config.displayName.ToUpperInvariant(), introDuration);
             yield return new WaitForSeconds(introDuration);
             SetFlow(LevelFlowState.Playing);
         }
 
         void Update()
         {
-            if (WasBackPressed())
-            {
-                if (Flow == LevelFlowState.Playing) Pause();
-                else if (Flow == LevelFlowState.Paused) Resume();
-            }
+            if (WasBackPressed()) TogglePause();
 
             if (Flow != LevelFlowState.Playing) return;
             _bestHeight = Mathf.Max(_bestHeight, climber.HeightUnits);
@@ -146,29 +129,32 @@ namespace GodTower.Core
             climber.PlaySummitClimb(builder.SummitStandPoint);
             if (_session != null) SaveData.MarkCompleted(_session.SelectedLevelIndex);
             AudioHandler.TryPlay(SfxId.Win);
-            if (ui != null) ui.ShowBanner("SUMMIT!", null, 0.9f);
-            StartCoroutine(ShowResultAfterDelay(won: true));
+            StartCoroutine(EndLevelAfterDelay(won: true));
         }
 
         void OnFellBelowBase()
         {
             SetFlow(LevelFlowState.Lost);
             AudioHandler.TryPlay(SfxId.Lose);
-            StartCoroutine(ShowResultAfterDelay(won: false));
+            StartCoroutine(EndLevelAfterDelay(won: false));
         }
 
-        IEnumerator ShowResultAfterDelay(bool won)
+        /// <summary>A win shows the level complete menu; a loss (or a win with no menu) restarts the level.</summary>
+        IEnumerator EndLevelAfterDelay(bool won)
         {
             yield return new WaitForSeconds(resultDelay);
             if (effects != null) effects.ClearAll();
 
-            int best = Mathf.FloorToInt(_bestHeight);
-            bool hasNext = _session == null || _session.HasNextLevel;
-            if (ui == null || !ui.TryShowResult(won, _config.displayName, hasNext, best))
-            {
-                Debug.Log($"[LevelController] {(won ? "Won" : "Lost")} (best {best}). No result screen assigned: restarting.");
-                Retry();
-            }
+            if (won && ui != null && ui.TryShowLevelComplete()) yield break;
+
+            Debug.Log($"[LevelController] {(won ? "Won" : "Lost")} (best {Mathf.FloorToInt(_bestHeight)}): restarting.");
+            Retry();
+        }
+
+        public void TogglePause()
+        {
+            if (Flow == LevelFlowState.Playing) Pause();
+            else if (Flow == LevelFlowState.Paused) Resume();
         }
 
         public void Pause()
@@ -177,14 +163,12 @@ namespace GodTower.Core
             SetFlow(LevelFlowState.Paused);
             Time.timeScale = 0f;
             input.ReleaseAll();
-            if (ui != null) ui.ShowPause();
             AudioHandler.TryPlay(SfxId.Click);
         }
 
         public void Resume()
         {
             if (Flow != LevelFlowState.Paused) return;
-            if (ui != null) ui.HidePause();
             Time.timeScale = 1f;
             SetFlow(LevelFlowState.Playing);
             AudioHandler.TryPlay(SfxId.Click);
@@ -196,6 +180,7 @@ namespace GodTower.Core
             else ReloadThisScene();
         });
 
+        /// <summary>Continue: the next level in the catalog, or this level again when there is none (or no session).</summary>
         void NextLevel() => Leave(() =>
         {
             if (_session == null) ReloadThisScene();
@@ -203,10 +188,13 @@ namespace GodTower.Core
             else _session.RestartLevel();
         });
 
-        void ExitToLevelSelect() => Leave(() =>
+        void QuitGame() => Leave(() =>
         {
-            if (_session != null) _session.LoadMenu();
-            else ReloadThisScene();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         });
 
         void Leave(System.Action load)
@@ -216,7 +204,7 @@ namespace GodTower.Core
             load();
         }
 
-        /// <summary>Without a session there is no menu or catalog to go to, so every exit replays this scene.</summary>
+        /// <summary>Without a session there is no catalog to go to, so every exit replays this scene.</summary>
         static void ReloadThisScene()
         {
             Scene scene = SceneManager.GetActiveScene();
@@ -262,11 +250,9 @@ namespace GodTower.Core
             }
             if (ui != null)
             {
-                ui.PauseRequested -= Pause;
-                ui.ResumeRequested -= Resume;
-                ui.RetryRequested -= Retry;
+                ui.PauseToggleRequested -= TogglePause;
                 ui.NextLevelRequested -= NextLevel;
-                ui.LevelSelectRequested -= ExitToLevelSelect;
+                ui.QuitRequested -= QuitGame;
             }
             if (climber != null)
             {
