@@ -67,7 +67,7 @@ namespace GodTower.Core
             builder.Build(_config);
             climber.Configure(_config, input);
             cameraRig.SetTarget(climber.transform);
-            _encounters = new EncounterRunner(_config.encounters);
+            _encounters = new EncounterRunner(_config.encounters, _config.goalHeight);
             _encounters.SkipUpTo(climber.HeightUnits);
             _bestHeight = climber.HeightUnits;
             if (effects != null) effects.Initialize(new EffectContext(climber, climberView, cameraRig, _config));
@@ -102,9 +102,11 @@ namespace GodTower.Core
             _encounters.Tick(climber.HeightUnits, TriggerEncounter);
         }
 
-        void TriggerEncounter(EffectType type)
+        void TriggerEncounter(Encounter encounter)
         {
-            if (effects != null) effects.Trigger(type, TowerSource);
+            if (effects == null) return;
+            float pushMeters = _config.GoalMeters * encounter.pushPercent / 100f;
+            effects.Trigger(encounter.effect, TowerSource, pushMeters);
         }
 
         static bool WasBackPressed()

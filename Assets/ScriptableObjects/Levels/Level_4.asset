@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 045d4bcbb23935f438d45371f0241d35, type: 3}
+  m_Name: Level_4
+  m_EditorClassIdentifier: Assembly-CSharp::GodTower.Level.LevelConfig
+  number: 4
+  displayName: High Tower
+  goalHeight: 3600
+  unitsPerMeter: 20
+  startProgress: 0.1
+  safeZoneHeight: 60
+  climbSpeed: 2.1
+  gloveKnockback: 150
+  axeKnockback: 90
+  explosionFallSpeed: 5
+  encounters:
+  - occurrence: 15
+    effect: 0
+    pushPercent: 2.5
+  - occurrence: 20
+    effect: 0
+    pushPercent: 2.5
+  - occurrence: 27
+    effect: 2
+    pushPercent: 0
+  - occurrence: 35
+    effect: 5
+    pushPercent: 3.5
+  - occurrence: 41
+    effect: 0
+    pushPercent: 2.5
+  - occurrence: 48
+    effect: 2
+    pushPercent: 0
+  - occurrence: 56
+    effect: 5
+    pushPercent: 3.5
+  - occurrence: 62
+    effect: 5
+    pushPercent: 3
+  - occurrence: 69
+    effect: 2
+    pushPercent: 0
+  - occurrence: 76
+    effect: 0
+    pushPercent: 2.5
+  - occurrence: 83
+    effect: 5
+    pushPercent: 3.5
+  - occurrence: 90
+    effect: 2
+    pushPercent: 0
+  - occurrence: 95
+    effect: 0
+    pushPercent: 2

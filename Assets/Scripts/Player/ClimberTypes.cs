@@ -17,6 +17,8 @@ namespace GodTower.Player
         public float FallSpeed;
         /// <summary>World direction the hit came from (for reactions).</summary>
         public Vector3 Direction;
+        /// <summary>Slide down at constant speed over the whole stagger, instead of a fast slam that eases off.</summary>
+        public bool Linear;
 
         public static HitData Knockback(float knockbackMeters, float stagger, bool lethal, Vector3 direction) => new HitData
         {
@@ -24,6 +26,16 @@ namespace GodTower.Player
             Stagger = stagger,
             Lethal = lethal,
             Direction = direction,
+        };
+
+        /// <summary>A steady push down: the climber slides <paramref name="meters"/> at constant speed over <paramref name="duration"/> seconds.</summary>
+        public static HitData Push(float meters, float duration, bool lethal, Vector3 direction) => new HitData
+        {
+            KnockbackMeters = meters,
+            Stagger = duration,
+            Lethal = lethal,
+            Direction = direction,
+            Linear = true,
         };
 
         public static HitData KnockOffTower(float fallSpeed, Vector3 direction) => new HitData

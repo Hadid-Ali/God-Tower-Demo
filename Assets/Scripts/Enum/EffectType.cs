@@ -8,5 +8,6 @@ namespace GodTower.Effects
         Phoenix = 2,
         Axe = 3,
         Explosion = 4,
+        Dragon = 5,
     }
 }

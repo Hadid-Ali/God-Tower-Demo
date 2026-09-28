@@ -10,20 +10,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 045d4bcbb23935f438d45371f0241d35, type: 3}
-  m_Name: Level
+  m_Name: Level_2
   m_EditorClassIdentifier: Assembly-CSharp::GodTower.Level.LevelConfig
-  number: 1
-  displayName: Tower Base
-  goalHeight: 1000
+  number: 2
+  displayName: Cloud Rise
+  goalHeight: 1800
   unitsPerMeter: 20
-  startProgress: 0.15
+  startProgress: 0.1
   safeZoneHeight: 60
-  climbSpeed: 1.8
+  climbSpeed: 1.9
   gloveKnockback: 150
   axeKnockback: 90
   explosionFallSpeed: 5
   encounters:
-  - height: 0
+  - occurrence: 20
     effect: 0
-  - height: 0
+    pushPercent: 3
+  - occurrence: 30
     effect: 2
+    pushPercent: 0
+  - occurrence: 45
+    effect: 0
+    pushPercent: 3
+  - occurrence: 60
+    effect: 5
+    pushPercent: 4
+  - occurrence: 72
+    effect: 2
+    pushPercent: 0
+  - occurrence: 85
+    effect: 0
+    pushPercent: 3

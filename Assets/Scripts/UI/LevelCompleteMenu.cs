@@ -18,11 +18,13 @@ namespace GodTower.UI
         public event Action ExitRequested;
 
         bool _wired;
+        bool _showing;
 
         void Awake()
         {
             Wire();
-            Hide();
+            // If the menu starts inactive, Show() activating it is what runs Awake: don't hide it again then.
+            if (!_showing) Hide();
         }
 
         /// <summary>Also called from <see cref="Show"/> in case the menu starts inactive and Awake has not run.</summary>
@@ -38,12 +40,14 @@ namespace GodTower.UI
         public void Show()
         {
             Wire();
+            _showing = true;
+            gameObject.SetActive(true);
             if (group != null) UITween.ShowPanel(group);
-            else gameObject.SetActive(true);
         }
 
         public void Hide()
         {
+            _showing = false;
             if (group != null) UITween.HidePanel(group);
             else gameObject.SetActive(false);
         }

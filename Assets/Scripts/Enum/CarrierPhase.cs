@@ -1,10 +1,11 @@
 namespace GodTower.Effects
 {
-    /// <summary>Where a boost's carrier (e.g. the phoenix) is in its fly-in, carry, fly-off cycle.</summary>
+    /// <summary>Where a carrier (e.g. the phoenix) is in its fly-in, settle, carry, fly-off cycle.</summary>
     public enum CarrierPhase
     {
         Hidden,
         Arriving,
+        Settling,
         Carrying,
         Departing,
     }

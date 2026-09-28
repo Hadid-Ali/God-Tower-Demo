@@ -99,6 +99,7 @@ namespace GodTower.Player
 
         void OnHit(HitData hit)
         {
+            if (hit.Linear) return; // A steady push moves the climber itself; a body jolt would read as a jump.
             _reactionTween?.Kill(true);
             Vector3 push = hit.Direction.sqrMagnitude > 0.001f ? hit.Direction.normalized * 0.35f : Vector3.down * 0.3f;
             _reactionTween = transform.DOPunchPosition(push, 0.35f, 12, 0.6f).SetLink(gameObject);

@@ -13,8 +13,10 @@ namespace GodTower.Player
     public sealed class ClimberController : MonoBehaviour
     {
         [Header("Climbing")]
-        [SerializeField, Tooltip("m/s² while speeding up.")] float acceleration = 9f;
-        [SerializeField, Tooltip("m/s² while letting go.")] float deceleration = 16f;
+        [SerializeField, Tooltip("m/s² while a boost winds down.")] float deceleration = 16f;
+        [SerializeField, Tooltip("Height gained per hand-over-hand surge, in meters. Also the length of one hand stroke.")] float hopHeight = 0.7f;
+        [SerializeField, Range(0f, 1f), Tooltip("How much speed swells and eases within each surge. 0 = flat glide, 1 = eases to a momentary stop between surges.")] float surgeStrength = 0.8f;
+        [SerializeField, Tooltip("Seconds to ease into climbing when Climb is pressed, and out of it when released.")] float engageTime = 0.15f;
         [SerializeField, Tooltip("Hand height above the transform pivot (feet).")] float handOffset = 2.05f;
         [SerializeField, Tooltip("Radius of the tower column, in meters.")] float towerRadius = 1f;
         [SerializeField, Tooltip("Gap between the tower surface and the body centre.")] float surfaceGap = 0.42f;
@@ -35,9 +37,12 @@ namespace GodTower.Player
         public event Action FellBelowBase;
         public event Action<string> BoostStarted;
         public event Action BoostEnded;
+        /// <summary>A new surge begins (the slowest point between surges): the gripping hand pulls while the other reaches.</summary>
+        public event Action HopStarted;
 
         public ClimberState State { get; private set; } = ClimberState.Idle;
         public float HeightMeters => _handY;
+        public float HopHeight => Mathf.Max(0.05f, hopHeight);
         public float HeightUnits => _config != null ? _config.ToUnits(Mathf.Max(0f, _handY)) : 0f;
         public float GoalUnits => _config != null ? _config.goalHeight : 1f;
         public float Progress01 => _config != null ? Mathf.Clamp01(_handY / _config.GoalMeters) : 0f;
@@ -55,12 +60,15 @@ namespace GodTower.Player
         float _handY;
         float _floorY; // Start height: the climber never drops below it except when losing.
         float _climbVelocity;
+        float _surgePhase;  // 0..1 through the current surge.
+        float _engage;      // 0..1 how committed to climbing (eases in/out with input).
         float _stateTimer;
         float _invulnerableTimer;
 
         float _hitStartY;
         float _hitTargetY;
         float _hitDuration;
+        bool _hitLinear;
 
         float _fallVelocity;
 
@@ -75,6 +83,8 @@ namespace GodTower.Player
             _floorY = config.StartMeters;
             _handY = _floorY;
             _climbVelocity = 0f;
+            _surgePhase = 0f;
+            _engage = 0f;
             PassedSafeZone = false;
             SetState(ClimberState.Idle);
             PlaceOnTower();
@@ -125,22 +135,49 @@ namespace GodTower.Player
 
         void TickClimb(float dt)
         {
-            float target = 0f;
-            if (IsBoosting) target = Mathf.Max(_boostSpeed, _config.climbSpeed);
-            else if (ControlEnabled && _input != null && _input.IsHeld) target = _config.climbSpeed;
+            if (IsBoosting)
+            {
+                // A boost carries the climber up linearly at its speed; only climbing by input surges.
+                _climbVelocity = Mathf.Max(_boostSpeed, _config.climbSpeed);
+                _handY += _climbVelocity * dt;
+                _engage = 1f;
+                SetState(ClimberState.Climb);
+                return;
+            }
 
-            float rate = target > _climbVelocity ? acceleration : deceleration;
-            if (IsBoosting) rate *= 2f;
-            _climbVelocity = Mathf.MoveTowards(_climbVelocity, target, rate * dt);
+            bool wantsClimb = ControlEnabled && _input != null && _input.IsHeld;
+            _engage = Mathf.MoveTowards(_engage, wantsClimb ? 1f : 0f, engageTime > 0f ? dt / engageTime : 1f);
+            float engage = Mathf.SmoothStep(0f, 1f, _engage);
+
+            // Speed follows a cosine through each surge: slowest at the hand swap, fastest mid-pull. Its average over
+            // a surge is exactly climbSpeed, and it never jumps, so the motion is lively but continuous.
+            float cycle = HopHeight / Mathf.Max(0.01f, _config.climbSpeed);
+            float surge = _config.climbSpeed * (1f - surgeStrength * Mathf.Cos(_surgePhase * Mathf.PI * 2f));
+            float target = engage * surge;
+
+            // Coming out of a boost: ease down to the surge rather than dropping.
+            _climbVelocity = _climbVelocity > target ? Mathf.MoveTowards(_climbVelocity, target, deceleration * dt) : target;
             _handY += _climbVelocity * dt;
+
+            if (engage > 0f)
+            {
+                _surgePhase += engage * dt / cycle;
+                if (_surgePhase >= 1f)
+                {
+                    _surgePhase -= 1f;
+                    HopStarted?.Invoke();
+                }
+            }
 
             SetState(_climbVelocity > 0.05f ? ClimberState.Climb : ClimberState.Idle);
         }
 
         void TickHit()
         {
-            float t = _hitDuration > 0f ? Mathf.Clamp01(_stateTimer / (_hitDuration * knockbackPortion)) : 1f;
-            _handY = Mathf.Lerp(_hitStartY, _hitTargetY, 1f - Mathf.Pow(1f - t, 3f));
+            // A linear push slides at constant speed for the whole stagger; a regular hit slams fast and eases off.
+            float slideTime = _hitLinear ? _hitDuration : _hitDuration * knockbackPortion;
+            float t = slideTime > 0f ? Mathf.Clamp01(_stateTimer / slideTime) : 1f;
+            _handY = Mathf.Lerp(_hitStartY, _hitTargetY, _hitLinear ? t : 1f - Mathf.Pow(1f - t, 3f));
 
             if (_stateTimer < _hitDuration) return;
             _invulnerableTimer = recoveryInvulnerability;
@@ -192,6 +229,7 @@ namespace GodTower.Player
         {
             _fallVelocity = 0f;
             _climbVelocity = 0f;
+            _engage = 0f;
             BeginStagger(_handY, Mathf.Max(_floorY, _handY), regrabStagger);
             Regrabbed?.Invoke();
         }
@@ -204,6 +242,7 @@ namespace GodTower.Player
 
             HitTaken?.Invoke(hit);
             _climbVelocity = 0f;
+            _engage = 0f;
 
             if (hit.KnockOff)
             {
@@ -222,7 +261,7 @@ namespace GodTower.Player
                 target = _floorY;
             }
 
-            BeginStagger(_handY, target, hit.Stagger);
+            BeginStagger(_handY, target, hit.Stagger, hit.Linear);
             return true;
         }
 
@@ -273,8 +312,9 @@ namespace GodTower.Player
             return transform.DOJump(standPoint, 1.4f, 1, 0.9f).SetEase(Ease.OutQuad).SetLink(gameObject);
         }
 
-        void BeginStagger(float fromY, float toY, float duration)
+        void BeginStagger(float fromY, float toY, float duration, bool linear = false)
         {
+            _hitLinear = linear;
             _hitStartY = fromY;
             _hitTargetY = toY;
             _hitDuration = Mathf.Max(0.05f, duration);

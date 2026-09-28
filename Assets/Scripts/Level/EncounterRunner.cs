@@ -5,17 +5,18 @@ using GodTower.Effects;
 namespace GodTower.Level
 {
     /// <summary>
-    /// Fires each encounter once, the first time the climber's height reaches it. Losing height
+    /// Fires each encounter once, the first time the climber's height reaches its occurrence. Losing height
     /// (knockback) never re-fires an encounter, so every level is deterministic and finishable.
     /// </summary>
     public sealed class EncounterRunner
     {
-        readonly List<Encounter> _encounters;
+        readonly List<(float height, Encounter encounter)> _encounters = new List<(float, Encounter)>();
         int _next;
 
-        public EncounterRunner(IEnumerable<Encounter> encounters)
+        /// <param name="goalHeight">The level's goal in display units; occurrences are percentages of it.</param>
+        public EncounterRunner(IEnumerable<Encounter> encounters, float goalHeight)
         {
-            _encounters = new List<Encounter>(encounters);
+            foreach (Encounter encounter in encounters) _encounters.Add((encounter.HeightUnits(goalHeight), encounter));
             _encounters.Sort((a, b) => a.height.CompareTo(b.height));
         }
 
@@ -28,11 +29,11 @@ namespace GodTower.Level
         }
 
         /// <summary>Triggers every encounter at or below <paramref name="heightUnits"/> that has not fired yet.</summary>
-        public void Tick(float heightUnits, Action<EffectType> trigger)
+        public void Tick(float heightUnits, Action<Encounter> trigger)
         {
             while (_next < _encounters.Count && heightUnits >= _encounters[_next].height)
             {
-                trigger(_encounters[_next].effect);
+                trigger(_encounters[_next].encounter);
                 _next++;
             }
         }

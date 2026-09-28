@@ -18,6 +18,7 @@ namespace GodTower.Effects
                 case EffectType.Phoenix: return "Phoenix";
                 case EffectType.Axe: return "Axe";
                 case EffectType.Explosion: return "Bomb";
+                case EffectType.Dragon: return "Dragon";
                 default: return type.ToString();
             }
         }

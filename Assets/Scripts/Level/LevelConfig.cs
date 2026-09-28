@@ -5,19 +5,27 @@ using UnityEngine;
 
 namespace GodTower.Level
 {
-    /// <summary>A height-triggered event. Each encounter fires once, the first time the climber reaches its height.</summary>
+    /// <summary>A progress-triggered event. Each encounter fires once, the first time the climber reaches its occurrence.</summary>
     [Serializable]
     public struct Encounter
     {
-        [Tooltip("Height in display units (the numbers shown on the meter).")]
-        public float height;
+        [Range(0f, 100f), Tooltip("Where in the level it fires, as a percentage of the goal height (the same scale as the progress bar). " +
+                                  "Must be above the level's start point.")]
+        public float occurrence;
         public EffectType effect;
+        [Range(0f, 100f), Tooltip("How far it pushes the climber down, as a percentage of the goal height. " +
+                                  "Only for effects that push (e.g. the Dragon-style push-down); 0 = the effect's own setting.")]
+        public float pushPercent;
 
-        public Encounter(float height, EffectType effect)
+        public Encounter(float occurrence, EffectType effect, float pushPercent = 0f)
         {
-            this.height = height;
+            this.occurrence = occurrence;
             this.effect = effect;
+            this.pushPercent = pushPercent;
         }
+
+        /// <summary>The occurrence converted to display units for a level with this goal height.</summary>
+        public float HeightUnits(float goalHeight) => goalHeight * occurrence / 100f;
     }
 
     /// <summary>What makes each level distinct: goal height, pacing, hazard strength and encounters.</summary>
@@ -71,10 +79,11 @@ namespace GodTower.Level
             float previous = float.MinValue;
             for (int i = 0; i < encounters.Count; i++)
             {
-                float h = encounters[i].height;
-                if (h <= StartUnits || h >= goalHeight) problems.Add($"encounter {i} height {h} is outside (start {StartUnits}, goal) and will never fire");
-                if (h < previous) problems.Add($"encounter {i} is not in ascending order");
-                previous = h;
+                float percent = encounters[i].occurrence;
+                if (percent <= startProgress * 100f || percent >= 100f)
+                    problems.Add($"encounter {i} at {percent}% is outside (start {startProgress * 100f}%, 100%) and will never fire");
+                if (percent < previous) problems.Add($"encounter {i} is not in ascending order");
+                previous = percent;
             }
             return problems;
         }
@@ -82,7 +91,7 @@ namespace GodTower.Level
 #if UNITY_EDITOR
         void OnValidate()
         {
-            encounters.Sort((a, b) => a.height.CompareTo(b.height));
+            encounters.Sort((a, b) => a.occurrence.CompareTo(b.occurrence));
         }
 #endif
     }

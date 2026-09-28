@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23959ef67bf285d4bbaf2f03717e8aa8, type: 3}
+  m_Name: LevelCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::GodTower.Level.LevelCatalog
+  levels:
+  - {fileID: 11400000, guid: db07ec1f583121543ba20ec1dbc2f126, type: 2}
+  - {fileID: 11400000, guid: c7c916f0e90c8cd478587560e261f010, type: 2}
+  - {fileID: 11400000, guid: 678b8ff3dd89fd342919ba5d3500e29b, type: 2}
+  - {fileID: 11400000, guid: 423eb030b30f86d40b09656d61c4a905, type: 2}
+  - {fileID: 11400000, guid: 7f88dc930d8410941bf4687a836072f2, type: 2}
